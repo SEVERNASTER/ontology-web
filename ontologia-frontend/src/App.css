@@ -1,0 +1,251 @@
+:root {
+  --neon-blue: #00f3ff;
+  --neon-pink: #ff006e;
+  --neon-purple: #a855f7;
+  --neon-green: #00ff9f;
+  --neon-yellow: #ffff00;
+  --dark-bg: #0a0a0f;
+  --dark-card: #1a1a2e;
+  --dark-hover: #252540;
+  --text-primary: #ffffff;
+  --text-secondary: #b4b4c8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.app {
+  min-height: 100vh;
+  position: relative;
+}
+
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(0, 243, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main-content {
+  position: relative;
+  z-index: 1;
+  padding: 100px 20px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 5px;
+  box-shadow: 0 0 10px var(--neon-purple);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-blue);
+  box-shadow: 0 0 15px var(--neon-blue);
+}
+
+/* Efectos de glow */
+.glow-text {
+  text-shadow: 0 0 10px currentColor,
+               0 0 20px currentColor,
+               0 0 30px currentColor;
+}
+
+.glow-box {
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3),
+              0 0 40px rgba(168, 85, 247, 0.2);
+}
+
+/* Animaciones */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px currentColor,
+                0 0 40px currentColor;
+  }
+  50% { 
+    box-shadow: 0 0 30px currentColor,
+                0 0 60px currentColor;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Botones base */
+.btn {
+  padding: 12px 24px;
+  border: 2px solid;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  animation: pulse-glow 1.5s infinite;
+}
+
+.btn-primary {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+}
+
+.btn-secondary {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+}
+
+.btn-success {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+
+/* Cards */
+.card {
+  background: var(--dark-card);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--neon-blue);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2),
+              0 0 50px rgba(168, 85, 247, 0.1);
+}
+
+/* Inputs */
+input, select {
+  background: var(--dark-card);
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-libro {
+  background: rgba(0, 243, 255, 0.2);
+  color: var(--neon-blue);
+  border: 1px solid var(--neon-blue);
+}
+
+.badge-estudiante {
+  background: rgba(255, 0, 110, 0.2);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+}
+
+.badge-docente {
+  background: rgba(168, 85, 247, 0.2);
+  color: var(--neon-purple);
+  border: 1px solid var(--neon-purple);
+}
+
+.badge-autor {
+  background: rgba(0, 255, 159, 0.2);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+}
+
+.badge-editorial {
+  background: rgba(255, 255, 0, 0.2);
+  color: var(--neon-yellow);
+  border: 1px solid var(--neon-yellow);
+}
+
+.badge-revista {
+  background: rgba(255, 100, 200, 0.2);
+  color: #ff64c8;
+  border: 1px solid #ff64c8;
+}
+
+.badge-bibliotecario {
+  background: rgba(100, 200, 255, 0.2);
+  color: #64c8ff;
+  border: 1px solid #64c8ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 80px 15px 30px;
+  }
+}
