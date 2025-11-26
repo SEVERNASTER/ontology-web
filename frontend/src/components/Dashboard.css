@@ -1,5 +1,7 @@
 .dashboard {
-    width: 100%;
+    width: 100vw;
+    padding: 30px;
+    padding-top: 180px;
 }
 
 .dashboard-loading {

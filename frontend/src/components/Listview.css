@@ -1,5 +1,6 @@
 .list-view {
-    width: 100%;
+    width: 100vw;
+    padding: 180px 0 30px 0;
 }
 
 .list-loading,
@@ -22,16 +23,25 @@
 }
 
 .list-header {
+    margin-bottom: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.list-header-wrapper{
+    width: 80%;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
     background: var(--dark-card);
     border: 2px solid rgba(168, 85, 247, 0.3);
     border-radius: 12px;
-    flex-wrap: wrap;
-    gap: 20px;
+    
 }
 
 .list-title-wrapper {
@@ -71,6 +81,14 @@
 }
 
 .table-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.table-wrapper {
+    width: 80%;
     background: var(--dark-card);
     border: 2px solid rgba(168, 85, 247, 0.3);
     border-radius: 12px;

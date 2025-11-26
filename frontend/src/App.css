@@ -48,7 +48,7 @@ body {
 .main-content {
   position: relative;
   z-index: 1;
-  padding: 100px 20px 40px;
+  /* padding: 100px 20px 40px; */
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -74,12 +74,6 @@ body {
   box-shadow: 0 0 15px var(--neon-blue);
 }
 
-/* Efectos de glow */
-.glow-text {
-  text-shadow: 0 0 10px currentColor,
-               0 0 20px currentColor,
-               0 0 30px currentColor;
-}
 
 .glow-box {
   box-shadow: 0 0 20px rgba(0, 243, 255, 0.3),

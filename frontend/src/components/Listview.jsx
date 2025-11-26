@@ -149,28 +149,32 @@ function ListView({ type, onItemClick }) {
     return (
         <div className="list-view">
             <div className="list-header">
-                <div className="list-title-wrapper">
-                    <span className="list-icon">{getIconByType(type)}</span>
-                    <h2 className="list-title glow-text">
-                        {getTitleByType(type)}
-                    </h2>
-                </div>
-                <div className="list-count">
-                    Total: <strong>{items.length}</strong>
+                <div className="list-header-wrapper">
+                    <div className="list-title-wrapper">
+                        <span className="list-icon">{getIconByType(type)}</span>
+                        <h2 className="list-title glow-text">
+                            {getTitleByType(type)}
+                        </h2>
+                    </div>
+                    <div className="list-count">
+                        Total: <strong>{items.length}</strong>
+                    </div>
                 </div>
             </div>
 
             <div className="table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            {renderTableHeaders()}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item, index) => renderTableRow(item, index))}
-                    </tbody>
-                </table>
+                <div className="table-wrapper">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                {renderTableHeaders()}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {items.map((item, index) => renderTableRow(item, index))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
