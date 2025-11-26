@@ -11,7 +11,7 @@ El sistema permite la gestión de **Libros, Usuarios, Editoriales y Préstamos**
 El proyecto se divide en dos carpetas principales:
 
 - `/backend`: Contiene la API en Python, la ontología `.owl` y los scripts de poblado.
-- `/ontologia-frontend`: Contiene la interfaz de usuario en React.
+- `/frontend`: Contiene la interfaz de usuario en React.
 
 ---
 
