@@ -13,21 +13,27 @@ function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [listType, setListType] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = async (query, category) => {
+  const handleSearch = async (query, category, onlineMode) => {
+    setIsSearching(true);
     try {
+      const endpoint = onlineMode ? '/buscador/online' : '/buscador';
       const params = new URLSearchParams({ q: query });
-      if (category && category !== 'Todo') {
+      if (category && category !== 'Todo' && !onlineMode) {
         params.append('clase', category);
       }
       
-      const response = await fetch(`${API_BASE}/buscador?${params}`);
+      const response = await fetch(`${API_BASE}${endpoint}?${params}`);
       const data = await response.json();
       
       setSearchResults(data);
       setCurrentView('search');
     } catch (error) {
       console.error('Error en búsqueda:', error);
+      setSearchResults({ cantidad: 0, resultados: [] });
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -74,10 +80,11 @@ function App() {
           />
         )}
         
-        {currentView === 'search' && searchResults && (
+        {currentView === 'search' && (
           <SearchResults 
             results={searchResults}
             onItemClick={handleItemClick}
+            isSearching={isSearching}
           />
         )}
         

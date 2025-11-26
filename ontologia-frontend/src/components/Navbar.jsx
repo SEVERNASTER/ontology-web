@@ -5,11 +5,12 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchCategory, setSearchCategory] = useState('Todo');
     const [menuOpen, setMenuOpen] = useState(false);
+    const [onlineMode, setOnlineMode] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            onSearch(searchQuery, searchCategory);
+            onSearch(searchQuery, searchCategory, onlineMode);
             setMenuOpen(false);
         }
     };
@@ -47,6 +48,23 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                     <button type="submit" className="search-button">
                         <span className="search-icon">🔍</span>
                     </button>
+
+                    <div className="online-toggle">
+                        <input
+                            type="checkbox"
+                            id="online-mode"
+                            className="toggle-checkbox"
+                            checked={onlineMode}
+                            onChange={(e) => setOnlineMode(e.target.checked)}
+                        />
+                        <label htmlFor="online-mode" className="toggle-label">
+                            <span className="toggle-inner"></span>
+                            <span className="toggle-switch"></span>
+                        </label>
+                        <span className="toggle-text">
+                            {onlineMode ? '🌐 DBpedia' : '💾 Local'}
+                        </span>
+                    </div>
                 </form>
 
                 <button

@@ -48,10 +48,11 @@
 
 .search-form {
     flex: 1;
-    max-width: 600px;
+    max-width: 800px;
     display: flex;
     gap: 0;
     position: relative;
+    align-items: center;
 }
 
 .search-category {
@@ -111,6 +112,76 @@
 .search-icon {
     font-size: 20px;
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+
+.online-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+    padding: 0 15px;
+    border-left: 2px solid rgba(168, 85, 247, 0.3);
+}
+
+.toggle-checkbox {
+    display: none;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
+}
+
+.toggle-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(168, 85, 247, 0.2);
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    border-radius: 13px;
+    transition: all 0.3s ease;
+}
+
+.toggle-checkbox:checked+.toggle-label .toggle-inner {
+    background: rgba(0, 243, 255, 0.2);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+}
+
+.toggle-switch {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--neon-purple);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-checkbox:checked+.toggle-label .toggle-switch {
+    transform: translateX(24px);
+    background: var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.toggle-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.toggle-checkbox:checked~.toggle-text {
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
 }
 
 .menu-toggle {
@@ -181,6 +252,18 @@
         order: 3;
         flex-basis: 100%;
         max-width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .online-toggle {
+        order: 4;
+        flex-basis: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+        padding: 10px 0;
+        border-left: none;
+        border-top: 2px solid rgba(168, 85, 247, 0.3);
+        justify-content: center;
     }
 
     .menu-toggle {

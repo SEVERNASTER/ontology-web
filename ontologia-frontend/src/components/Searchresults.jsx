@@ -1,6 +1,18 @@
 import './SearchResults.css';
 
-function SearchResults({ results, onItemClick }) {
+function SearchResults({ results, onItemClick, isSearching }) {
+    if (isSearching) {
+        return (
+            <div className="search-results-loading">
+                <div className="loading-spinner-large"></div>
+                <h2 className="loading-title">Buscando en DBpedia...</h2>
+                <p className="loading-message">
+                    Esto puede tomar unos segundos mientras consultamos la base de datos externa
+                </p>
+            </div>
+        );
+    }
+
     if (!results || results.cantidad === 0) {
         return (
             <div className="search-results-empty">
@@ -51,11 +63,22 @@ function SearchResults({ results, onItemClick }) {
             <div className="results-grid">
                 {results.resultados.map((item, index) => (
                     <div
-                        key={item.id}
+                        key={`${item.id}-${index}`}
                         className="result-card fade-in"
                         style={{ animationDelay: `${index * 0.1}s` }}
                         onClick={() => onItemClick(item.id)}
                     >
+                        {item.imagen && (
+                            <div className="result-image-container">
+                                <img
+                                    src={item.imagen}
+                                    alt={item.nombre_mostrar}
+                                    className="result-image"
+                                    onError={(e) => e.target.style.display = 'none'}
+                                />
+                            </div>
+                        )}
+
                         <div className="result-card-header">
                             <span className="result-icon">{getIcon(item.tipo)}</span>
                             <span className={`badge ${getBadgeClass(item.tipo)}`}>
@@ -65,12 +88,24 @@ function SearchResults({ results, onItemClick }) {
 
                         <h3 className="result-name">{item.nombre_mostrar}</h3>
 
+                        {item.descripcion && item.descripcion !== "Sin descripción" && (
+                            <p className="result-description">{item.descripcion}</p>
+                        )}
+
                         {item.razon_match && (
                             <p className="result-match">{item.razon_match}</p>
                         )}
 
+                        {item.origen && (
+                            <div className="result-origin">
+                                <span className="origin-badge">{item.origen}</span>
+                            </div>
+                        )}
+
                         <div className="result-footer">
-                            <span className="result-id">ID: {item.id}</span>
+                            <span className="result-id" title={item.id}>
+                                {item.id.length > 30 ? `${item.id.substring(0, 30)}...` : item.id}
+                            </span>
                             <span className="result-action">Ver detalles →</span>
                         </div>
                     </div>

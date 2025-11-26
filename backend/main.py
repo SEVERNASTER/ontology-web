@@ -9,6 +9,7 @@ import datetime
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 # --- Configuración ---
 ONTO_FILE = "biblioteca.owl"
@@ -412,3 +413,84 @@ def buscador_semantico(q: str = Query(..., min_length=1, description="Texto a bu
             })
 
     return {"cantidad": len(resultados), "resultados": resultados}
+
+
+
+
+
+
+
+
+    # --- ENDPOINT BÚSQUEDA ONLINE (DBpedia) ---
+
+@app.get("/buscador/online")
+def buscar_en_dbpedia(q: str = Query(..., min_length=2, description="Término a buscar en DBpedia")):
+    """
+    Consulta OPTIMIZADA a DBpedia usando índice de texto completo.
+    """
+    print(f"--- Consultando DBpedia para: {q} ---")
+    
+    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+    
+    # TRUCO DE OPTIMIZACIÓN:
+    # Usamos 'bif:contains' que es el buscador nativo de Virtuoso (el motor de DBpedia).
+    # Es 100 veces más rápido que usar FILTER(CONTAINS(...)).
+    
+    query = f"""
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX dbo: <http://dbpedia.org/ontology/>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+    SELECT DISTINCT ?s ?label ?comment ?type ?img
+    WHERE {{
+      # Búsqueda rápida usando índice full-text
+      ?s rdfs:label ?label .
+      ?label bif:contains "'{q}'" . 
+      
+      ?s a ?type .
+      
+      # Solo etiquetas en español
+      FILTER (lang(?label) = 'es')
+      
+      OPTIONAL {{ 
+        ?s rdfs:comment ?comment . 
+        FILTER (lang(?comment) = 'es') 
+      }}
+      OPTIONAL {{ ?s foaf:depiction ?img }}
+      
+      # Filtramos tipos relevantes
+      FILTER (?type IN (dbo:Person, dbo:Book, dbo:Writer, dbo:Organisation, dbo:University, dbo:City))
+    }}
+    LIMIT 10
+    """
+
+    try:
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        sparql.setTimeout(20) # Aumentamos el tiempo de espera a 20 segundos
+        results = sparql.query().convert()
+        
+        resultados_formateados = []
+        
+        for r in results["results"]["bindings"]:
+            tipo_raw = r["type"]["value"]
+            tipo_clean = tipo_raw.split('/')[-1]
+
+            resultados_formateados.append({
+                "id": r["s"]["value"],
+                "tipo": tipo_clean, 
+                "nombre_mostrar": r["label"]["value"],
+                "descripcion": r.get("comment", {}).get("value", "Sin descripción"),
+                "imagen": r.get("img", {}).get("value", None),
+                "origen": "DBpedia (Online)"
+            })
+            
+        return {
+            "cantidad": len(resultados_formateados),
+            "resultados": resultados_formateados
+        }
+
+    except Exception as e:
+        print(f"Error conectando a DBpedia: {e}")
+        # Devolvemos un error limpio para que el frontend no colapse
+        return {"cantidad": 0, "resultados": [], "mensaje_error": "DBpedia está lenta, intenta de nuevo."}

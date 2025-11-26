@@ -15,6 +15,8 @@ function Dashboard({ onViewList, onItemClick }) {
 
     useEffect(() => {
         loadStats();
+        console.log(stats);
+        
     }, []);
 
     const loadStats = async () => {
@@ -34,6 +36,7 @@ function Dashboard({ onViewList, onItemClick }) {
                 revistas: revistas.length,
                 bibliotecarios: bibliotecarios.length
             });
+
         } catch (error) {
             console.error('Error cargando estadísticas:', error);
         } finally {
@@ -105,6 +108,7 @@ function Dashboard({ onViewList, onItemClick }) {
             </div>
 
             <div className="stats-grid">
+                {/* {console.log(categories)} */}
                 {categories.map((category, index) => (
                     <div
                         key={category.id}
