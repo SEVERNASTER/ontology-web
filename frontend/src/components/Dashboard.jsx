@@ -15,7 +15,7 @@ function Dashboard({ onViewList, onItemClick }) {
 
     useEffect(() => {
         loadStats();
-        console.log(stats);
+        // console.log(stats);
         
     }, []);
 
@@ -28,6 +28,9 @@ function Dashboard({ onViewList, onItemClick }) {
                 fetch(`${API_BASE}/revistas`).then(r => r.json()),
                 fetch(`${API_BASE}/bibliotecarios`).then(r => r.json())
             ]);
+
+            // console.log(libros, estudiantes, doce);
+            
 
             setStats({
                 libros: libros.length,
