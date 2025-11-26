@@ -1,16 +1,164 @@
-# React + Vite
+# Sistema de Gestión de Biblioteca Semántica (Ontología OWL)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es una aplicación web full-stack que gestiona una ontología de biblioteca utilizando **Python (FastAPI + Owlready2)** en el backend y **React (Vite)** en el frontend.
 
-Currently, two official plugins are available:
+El sistema permite la gestión de **Libros, Usuarios, Editoriales y Préstamos** mediante lógica semántica.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 📂 Estructura del Proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+El proyecto se divide en dos carpetas principales:
 
-## Expanding the ESLint configuration
+- `/backend`: Contiene la API en Python, la ontología `.owl` y los scripts de poblado.
+- `/ontologia-frontend`: Contiene la interfaz de usuario en React.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🚀 1. Configuración del Backend
+
+### 1.1. Prerrequisitos
+
+- **Python 3.10+** instalado.
+
+
+### 1.2. Instalación de dependencias
+
+1. Abre una terminal y navega a la carpeta del backend:
+
+```bash
+cd backend
+```
+
+2. Instala las dependencias principales del proyecto:
+
+```bash
+pip install -r requirements.txt
+```
+
+
+### 1.3. Instalar las librerías necesarias
+
+```bash
+pip install -r requirements.txt
+```
+
+### 1.4. Librerías adicionales para el script de poblado
+
+```bash
+pip install SPARQLWrapper faker
+```
+
+## 💾 2. Poblado de Datos (Paso Crítico)
+
+El sistema funciona en dos modos:
+
+- **Offline** → Datos locales dentro de `biblioteca.owl`
+- **Online** → Datos consultados desde DBpedia
+
+Para que el modo Offline funcione, es necesario poblar la ontología.
+
+> ⚠️ **Este proceso solo se realiza una vez.**
+
+### 2.1. Generar la estructura vacía
+
+Ejecuta el servidor una vez para generar la ontología base:
+
+```bash
+uvicorn main:app --reload
+```
+
+Cuando veas que se generó el archivo `.owl`, detén el servidor:
+
+```
+Ctrl + C
+```
+
+### 2.2. Inyectar datos (poblado)
+
+Con el servidor detenido, ejecuta:
+
+```bash
+python poblar_datos.py
+```
+
+Este script:
+
+- Descarga libros reales desde internet  
+- Genera estudiantes/usuarios falsos  
+- Inserta todo en `biblioteca.owl`
+
+### 2.3. Reiniciar o borrar los datos
+
+Si deseas regenerar todo desde cero:
+
+1. Borra `biblioteca.owl` dentro de `/backend`.
+2. Repite:
+   - **Paso 2.1** → Generar ontología base  
+   - **Paso 2.2** → Poblar datos  
+
+## ▶️ 3. Ejecutar el Servidor Backend
+
+Con la ontología lista:
+
+```bash
+uvicorn main:app --reload
+```
+
+- **API Base:** http://127.0.0.1:8000  
+- **Swagger Docs:** http://127.0.0.1:8000/docs
+
+## ⚛️ 4. Ejecutar el Cliente (Frontend)
+
+### 4.1. Prerrequisitos
+
+- Node.js instalado.
+
+### 4.2. Instalación y ejecución
+
+En una nueva terminal:
+
+```bash
+cd ontologia-frontend
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Ejecutar servidor de desarrollo:
+
+```bash
+npm run dev
+```
+
+Abrir la URL que muestra la consola (generalmente):
+
+```
+http://localhost:5173
+```
+
+## 💡 5. Guía de Uso
+
+### 5.1. Modo Offline (por defecto)
+
+- Las búsquedas se realizan sobre `biblioteca.owl`.
+- No requiere internet.
+- Consultas rápidas.
+
+### 5.2. Modo Online (DBpedia)
+
+Activa en la interfaz:
+
+```
+Buscar en Web / DBpedia
+```
+
+- Las consultas se enviarán a DBpedia.
+- Requiere internet.
+- Puede tardar algunos segundos.
+
+
+
