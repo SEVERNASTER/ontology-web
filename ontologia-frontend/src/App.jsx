@@ -23,10 +23,10 @@ function App() {
       if (category && category !== 'Todo' && !onlineMode) {
         params.append('clase', category);
       }
-      
+
       const response = await fetch(`${API_BASE}${endpoint}?${params}`);
       const data = await response.json();
-      
+
       setSearchResults(data);
       setCurrentView('search');
     } catch (error) {
@@ -42,7 +42,33 @@ function App() {
     setCurrentView('list');
   };
 
-  const handleItemClick = async (itemId) => {
+  const handleItemClick = async (itemId, itemData = null) => {
+    // Si itemData ya está proporcionado (desde búsqueda online), usarlo directamente
+    if (itemData && itemData.origen === "DBpedia (Online)") {
+      setSelectedItem(itemData);
+      return;
+    }
+
+    // Si es una URL de DBpedia, buscar en los resultados actuales
+    if (typeof itemId === 'string' && itemId.startsWith('http://dbpedia.org')) {
+      if (searchResults && searchResults.resultados) {
+        const foundItem = searchResults.resultados.find(r => r.id === itemId);
+        if (foundItem) {
+          setSelectedItem(foundItem);
+          return;
+        }
+      }
+      // Si no se encuentra en resultados, crear un objeto básico
+      setSelectedItem({
+        id: itemId,
+        nombre_mostrar: itemId.split('/').pop().replace(/_/g, ' '),
+        tipo: 'DBpedia Resource',
+        origen: 'DBpedia (Online)'
+      });
+      return;
+    }
+
+    // Para búsquedas locales, hacer fetch normal
     try {
       const response = await fetch(`${API_BASE}/individuos/${itemId}`);
       const data = await response.json();
@@ -63,7 +89,7 @@ function App() {
 
   return (
     <div className="app">
-      <Navbar 
+      <Navbar
         onSearch={handleSearch}
         onNavigate={(view) => {
           setCurrentView(view);
@@ -71,25 +97,25 @@ function App() {
         }}
         onViewList={handleViewList}
       />
-      
+
       <main className="main-content">
         {currentView === 'dashboard' && (
-          <Dashboard 
+          <Dashboard
             onViewList={handleViewList}
             onItemClick={handleItemClick}
           />
         )}
-        
+
         {currentView === 'search' && (
-          <SearchResults 
+          <SearchResults
             results={searchResults}
             onItemClick={handleItemClick}
             isSearching={isSearching}
           />
         )}
-        
+
         {currentView === 'list' && listType && (
-          <ListView 
+          <ListView
             type={listType}
             onItemClick={handleItemClick}
           />
@@ -97,7 +123,7 @@ function App() {
       </main>
 
       {selectedItem && (
-        <DetailModal 
+        <DetailModal
           item={selectedItem}
           onClose={handleCloseModal}
           onNavigate={handleNavigateToItem}

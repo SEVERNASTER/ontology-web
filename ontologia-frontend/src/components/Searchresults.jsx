@@ -66,7 +66,14 @@ function SearchResults({ results, onItemClick, isSearching }) {
                         key={`${item.id}-${index}`}
                         className="result-card fade-in"
                         style={{ animationDelay: `${index * 0.1}s` }}
-                        onClick={() => onItemClick(item.id)}
+                        onClick={() => {
+                            // Para resultados de DBpedia, pasar el objeto completo
+                            if (item.origen === "DBpedia (Online)") {
+                                onItemClick(item.id, item);
+                            } else {
+                                onItemClick(item.id);
+                            }
+                        }}
                     >
                         {item.imagen && (
                             <div className="result-image-container">
