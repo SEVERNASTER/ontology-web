@@ -11,16 +11,22 @@
 <owl:ObjectProperty rdf:about="#publica">
   <rdfs:domain rdf:resource="#Editorial"/>
   <rdfs:range rdf:resource="#Publicacion"/>
+  <rdfs:label xml:lang="es">publica</rdfs:label>
+  <rdfs:label xml:lang="en">publishes</rdfs:label>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="#escribe">
   <rdfs:domain rdf:resource="#Persona"/>
   <rdfs:range rdf:resource="#Publicacion"/>
+  <rdfs:label xml:lang="es">escribe</rdfs:label>
+  <rdfs:label xml:lang="en">writes</rdfs:label>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="#toma_prestado">
   <rdfs:domain rdf:resource="#Usuario"/>
   <rdfs:range rdf:resource="#Libro"/>
+  <rdfs:label xml:lang="es">toma prestado</rdfs:label>
+  <rdfs:label xml:lang="en">borrows</rdfs:label>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="#gestiona">
@@ -35,6 +41,8 @@
 
 <owl:DatatypeProperty rdf:about="#nombre">
   <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label xml:lang="es">nombre</rdfs:label>
+  <rdfs:label xml:lang="en">name</rdfs:label>
 </owl:DatatypeProperty>
 
 <owl:DatatypeProperty rdf:about="#direccion">
@@ -100,6 +108,8 @@
 
 <owl:DatatypeProperty rdf:about="#titulo">
   <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label xml:lang="en">title</rdfs:label>
+  <rdfs:label xml:lang="es">título</rdfs:label>
 </owl:DatatypeProperty>
 
 <owl:DatatypeProperty rdf:about="#isbn">
@@ -109,6 +119,8 @@
 
 <owl:DatatypeProperty rdf:about="#anio_publicacion">
   <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  <rdfs:label xml:lang="es">año publicación</rdfs:label>
+  <rdfs:label xml:lang="en">year</rdfs:label>
 </owl:DatatypeProperty>
 
 <owl:DatatypeProperty rdf:about="#numero_paginas">
@@ -146,54 +158,82 @@
 
 <owl:Class rdf:about="#Editorial">
   <rdfs:subClassOf rdf:resource="#Organizacion"/>
+  <rdfs:label xml:lang="en">Publisher</rdfs:label>
+  <rdfs:label xml:lang="es">Editorial</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Publicacion">
   <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label xml:lang="en">Publication</rdfs:label>
+  <rdfs:label xml:lang="es">Publicación</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Persona">
   <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label xml:lang="es">Persona</rdfs:label>
+  <rdfs:label xml:lang="en">Person</rdfs:label>
+  <rdfs:comment xml:lang="es">Ser humano</rdfs:comment>
+  <rdfs:comment xml:lang="en">Human being</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Usuario">
   <rdfs:subClassOf rdf:resource="#Persona"/>
+  <rdfs:label xml:lang="en">User</rdfs:label>
+  <rdfs:label xml:lang="es">Usuario</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Libro">
   <rdfs:subClassOf rdf:resource="#Publicacion"/>
+  <rdfs:label xml:lang="en">Book</rdfs:label>
+  <rdfs:label xml:lang="es">Libro</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Bibliotecario">
   <rdfs:subClassOf rdf:resource="#Persona"/>
+  <rdfs:label xml:lang="en">Librarian</rdfs:label>
+  <rdfs:label xml:lang="es">Bibliotecario</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Biblioteca">
   <rdfs:subClassOf rdf:resource="#Organizacion"/>
+  <rdfs:label xml:lang="en">Library</rdfs:label>
+  <rdfs:label xml:lang="es">Biblioteca</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Estudiante">
   <rdfs:subClassOf rdf:resource="#Usuario"/>
+  <rdfs:label xml:lang="en">Student</rdfs:label>
+  <rdfs:label xml:lang="es">Estudiante</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Docente">
   <rdfs:subClassOf rdf:resource="#Usuario"/>
+  <rdfs:label xml:lang="en">Professor</rdfs:label>
+  <rdfs:label xml:lang="es">Docente</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Organizacion">
   <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label xml:lang="en">Organization</rdfs:label>
+  <rdfs:label xml:lang="es">Organización</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#PublicacionPeriodica">
   <rdfs:subClassOf rdf:resource="#Publicacion"/>
+  <rdfs:label xml:lang="es">Publicación Periódica</rdfs:label>
+  <rdfs:label xml:lang="en">Periodical</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Revista">
   <rdfs:subClassOf rdf:resource="#PublicacionPeriodica"/>
+  <rdfs:label xml:lang="es">Revista</rdfs:label>
+  <rdfs:label xml:lang="en">Magazine</rdfs:label>
 </owl:Class>
 
 <owl:Class rdf:about="#Periodico">
   <rdfs:subClassOf rdf:resource="#PublicacionPeriodica"/>
+  <rdfs:label xml:lang="es">Periódico</rdfs:label>
+  <rdfs:label xml:lang="en">Newspaper</rdfs:label>
 </owl:Class>
 
 <owl:NamedIndividual rdf:about="#ColumbiaUniversityPr2211">

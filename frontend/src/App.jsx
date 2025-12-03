@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
-import SearchResults from './components/Searchresults';
-import DetailModal from './components/Detailmodal';
+import SearchResults from './components/SearchResults';
+import DetailModal from './components/DetailModal';
 import ListView from './components/ListView';
 import './App.css';
 
@@ -14,12 +14,37 @@ function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [listType, setListType] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // Estados para multilingüismo
+  const [language, setLanguage] = useState('es');
+  const [translations, setTranslations] = useState({});
+
+  // Cargar traducciones cuando cambie el idioma
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/config/idioma/${language}`);
+        const data = await response.json();
+        setTranslations(data);
+        console.log('Traducciones cargadas:', data);
+      } catch (error) {
+        console.error('Error cargando traducciones:', error);
+        setTranslations({});
+      }
+    };
+
+    loadTranslations();
+  }, [language]);
 
   const handleSearch = async (query, category, onlineMode) => {
     setIsSearching(true);
     try {
       const endpoint = onlineMode ? '/buscador/online' : '/buscador';
       const params = new URLSearchParams({ q: query });
+      
+      // Agregar parámetro de idioma
+      params.append('lang', language);
+      
       if (category && category !== 'Todo' && !onlineMode) {
         params.append('clase', category);
       }
@@ -96,6 +121,9 @@ function App() {
           setSearchResults(null);
         }}
         onViewList={handleViewList}
+        language={language}
+        setLanguage={setLanguage}
+        translations={translations}
       />
       
       <main className="main-content">
@@ -103,6 +131,8 @@ function App() {
           <Dashboard 
             onViewList={handleViewList}
             onItemClick={handleItemClick}
+            translations={translations}
+            language={language}
           />
         )}
         
@@ -111,6 +141,8 @@ function App() {
             results={searchResults}
             onItemClick={handleItemClick}
             isSearching={isSearching}
+            translations={translations}
+            language={language}
           />
         )}
         
@@ -118,6 +150,8 @@ function App() {
           <ListView 
             type={listType}
             onItemClick={handleItemClick}
+            translations={translations}
+            language={language}
           />
         )}
       </main>
@@ -127,6 +161,8 @@ function App() {
           item={selectedItem}
           onClose={handleCloseModal}
           onNavigate={handleNavigateToItem}
+          translations={translations}
+          language={language}
         />
       )}
     </div>

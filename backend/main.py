@@ -47,107 +47,128 @@ class SPARQLQuery(BaseModel):
 
 # --- Inicialización de la Ontología (T-BOX) ---
 def inicializar_ontologia_base():
-    """Define la estructura de clases y propiedades si no existen."""
     global onto
     
-    # Cargar o Crear
+    # ---------------------------------------------------------
+    # 1. CARGA O CREACIÓN DE LA ONTOLOGÍA (LO QUE FALTABA)
+    # ---------------------------------------------------------
     if not os.path.exists(ONTO_FILE):
         print(f"--- Creando ontología desde cero: {ONTO_FILE} ---")
         onto = get_ontology(IRI_BASE)
     else:
-        print(f"--- Cargando ontología existente ---")
+        print(f"--- Cargando ontología existente: {ONTO_FILE} ---")
         onto = get_ontology(ONTO_FILE).load()
 
+    # ---------------------------------------------------------
+    # 2. DEFINICIÓN DE ESTRUCTURA (Multilingüe y Ordenada)
+    # ---------------------------------------------------------
     with onto:
-        # 1. Definición de Clases Principales
-        class Persona(Thing): pass
-        class Organizacion(Thing): pass
-        class Publicacion(Thing): pass # Clase padre para libros, revistas, etc.
         
-        # 2. Subclases de Persona
-        class Bibliotecario(Persona): pass
-        class Usuario(Persona): pass
-        class Docente(Usuario): pass
-        class Estudiante(Usuario): pass
+        # --- NIVEL 1: CLASES BASE (Padres) ---
         
-        # 3. Subclases de Organización
-        class Biblioteca(Organizacion): pass
-        class Editorial(Organizacion): pass
+        class Persona(Thing): 
+            label = [locstr("Persona", "es"), locstr("Person", "en")]
+            comment = [locstr("Ser humano", "es"), locstr("Human being", "en")]
         
-        # 4. Subclases de Publicación
-        class Libro(Publicacion): pass
-        class PublicacionPeriodica(Publicacion): pass
-        class Revista(PublicacionPeriodica): pass
-        class Periodico(PublicacionPeriodica): pass
+        class Organizacion(Thing): 
+            label = [locstr("Organización", "es"), locstr("Organization", "en")]
+        
+        class Publicacion(Thing): 
+            label = [locstr("Publicación", "es"), locstr("Publication", "en")]
 
-        # 5. Propiedades de Datos (Atributos - DataProperties)
-        # Generales
-        class nombre(DataProperty): range = [str]
-        class direccion(DataProperty): range = [str]
-        class telefono(DataProperty): range = [str]
-        class email(DataProperty): range = [str]
-        class fecha_registro(DataProperty): range = [datetime.date]
+        # --- NIVEL 2: SUBCLASES INTERMEDIAS ---
         
-        # Específicas de Persona/Usuario
-        class ci(DataProperty): range = [str] # Carnet
-        class fecha_nacimiento(DataProperty): range = [datetime.date]
-        class codigo_usuario(DataProperty): range = [str]
-        class estado_cuenta(DataProperty): range = [str] # Activo/Suspendido
+        class Usuario(Persona): 
+            label = [locstr("Usuario", "es"), locstr("User", "en")]
+            
+        class Bibliotecario(Persona): 
+            label = [locstr("Bibliotecario", "es"), locstr("Librarian", "en")]
+            
+        class Biblioteca(Organizacion): 
+            label = [locstr("Biblioteca", "es"), locstr("Library", "en")]
+            
+        class Editorial(Organizacion):
+            label = [locstr("Editorial", "es"), locstr("Publisher", "en")]
+            
+        class PublicacionPeriodica(Publicacion):
+            label = [locstr("Publicación Periódica", "es"), locstr("Periodical", "en")]
+
+        # --- NIVEL 3: CLASES ESPECÍFICAS (Hojas) ---
+
+        class Docente(Usuario): 
+            label = [locstr("Docente", "es"), locstr("Professor", "en")]
         
-        # Específicas de Estudiante/Docente
+        class Estudiante(Usuario): 
+            label = [locstr("Estudiante", "es"), locstr("Student", "en")]
+
+        class Libro(Publicacion): 
+            label = [locstr("Libro", "es"), locstr("Book", "en")]
+        
+        class Revista(PublicacionPeriodica): 
+            label = [locstr("Revista", "es"), locstr("Magazine", "en")]
+            
+        class Periodico(PublicacionPeriodica):
+            label = [locstr("Periódico", "es"), locstr("Newspaper", "en")]
+
+        # --- PROPIEDADES DE DATOS (Atributos) ---
+        
+        class titulo(DataProperty):
+            label = [locstr("título", "es"), locstr("title", "en")]
+            range = [str]
+
+        class nombre(DataProperty):
+            label = [locstr("nombre", "es"), locstr("name", "en")]
+            range = [str]
+            
+        class anio_publicacion(DataProperty):
+            label = [locstr("año publicación", "es"), locstr("year", "en")]
+            range = [int]
+            
+        # Agrega aquí el resto de tus propiedades (ci, codigo_sis, etc.) 
+        # Si no las defines, owlready2 las creará dinámicamente, pero mejor definirlas.
         class codigo_sis(DataProperty): domain = [Estudiante]; range = [str]
         class carrera(DataProperty): domain = [Estudiante]; range = [str]
         class item_docente(DataProperty): domain = [Docente]; range = [str]
         class departamento(DataProperty): domain = [Docente]; range = [str]
-        
-        # Específicas de Bibliotecario
         class id_empleado(DataProperty): domain = [Bibliotecario]; range = [str]
         class turno(DataProperty): range = [str]
-        
-        # Específicas de Publicación/Libro
-        class titulo(DataProperty): range = [str]
         class isbn(DataProperty): domain = [Libro]; range = [str]
-        class anio_publicacion(DataProperty): range = [int]
-        class numero_paginas(DataProperty): range = [int]
-        class estado_libro(DataProperty): range = [str] # Disponible/Prestado
+        class estado_libro(DataProperty): range = [str]
         class resumen(DataProperty): range = [str]
-        
-        # Específicas de Revista/Periodico
-        class issn(DataProperty): range = [str]
-        class periodicidad(DataProperty): range = [str] # Mensual, Semanal
-        class volumen(DataProperty): range = [int]
-
-        # Específicas de Editorial
-        class sitio_web(DataProperty): domain = [Editorial]; range = [str]
         class pais_origen(DataProperty): range = [str]
+        class sitio_web(DataProperty): domain = [Editorial]; range = [str]
 
-        # 6. Propiedades de Objeto (Relaciones - ObjectProperties)
-        
-        # Relaciones de Publicación
+        # --- PROPIEDADES DE OBJETO (Relaciones) ---
+
+        class escribe(ObjectProperty):
+            label = [locstr("escribe", "es"), locstr("writes", "en")]
+            domain = [Persona]
+            range = [Publicacion]
+            
         class publica(ObjectProperty):
+            label = [locstr("publica", "es"), locstr("publishes", "en")]
             domain = [Editorial]
             range = [Publicacion]
-            
-        class escribe(ObjectProperty):
-            domain = [Persona] # Un autor es una persona
-            range = [Publicacion]
-            
-        # Relaciones de Préstamos
+
         class toma_prestado(ObjectProperty):
+            label = [locstr("toma prestado", "es"), locstr("borrows", "en")]
             domain = [Usuario]
             range = [Libro]
-            
+
         class gestiona(ObjectProperty):
             domain = [Bibliotecario]
-            range = [Thing] # Gestiona prestamos, multas, etc.
+            range = [Thing]
 
         class trabaja_en(ObjectProperty):
             domain = [Bibliotecario]
             range = [Biblioteca]
 
-    # Guardar estructura inicial
+    # Guardar cambios finales
     onto.save(file=ONTO_FILE)
-    print("--- Estructura de Ontología inicializada correctamente ---")
+    print("--- Ontología inicializada CORRECTAMENTE (Multilingüe y Estructurada) ---")
+
+
+    
 
 # --- Utilidades de Búsqueda ---
 def get_thing(name: str):
@@ -421,44 +442,46 @@ def buscador_offline(q: str = Query(..., min_length=1),
     return {"cantidad": len(results), "resultados": results}
 
 @app.get("/buscador/online")
-def buscador_hibrido(q: str = Query(..., min_length=2)):
-    """
-    Modo Híbrido: Busca en Local + DBpedia y combina los resultados.
-    """
-    print(f"--- Búsqueda Híbrida para: {q} ---")
+def buscador_hibrido(q: str = Query(..., min_length=2), 
+                     lang: str = Query("es", description="Idioma: 'es' o 'en'")):
     
-    # 1. Buscar Localmente primero
-    resultados_locales = _buscar_en_local(q)
-    
-    # 2. Buscar en DBpedia (Online)
+    print(f"--- Búsqueda Híbrida: '{q}' en idioma '{lang}' ---")
+
+    # 1. Búsqueda Local (Tu ontología)
+    # (El buscador local ya busca en todos los labels, así que encontrará "Book" o "Libro")
+    resultados_locales = _buscar_en_local(q) 
+
+    # 2. Búsqueda Online (DBpedia)
     resultados_online = []
     try:
         sparql = SPARQLWrapper("http://dbpedia.org/sparql")
         
-        # Consulta optimizada (la misma de antes)
+        # Consulta SPARQL dinámica según el idioma
         query = f"""
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX bif: <bif:>
 
         SELECT DISTINCT ?s ?label ?comment ?type ?img
         WHERE {{
           ?s rdfs:label ?label .
           ?label bif:contains "'{q}'" . 
           ?s a ?type .
-          FILTER (lang(?label) = 'es')
+          
+          # --- FILTRO DE IDIOMA DINÁMICO ---
+          FILTER (lang(?label) = '{lang}') 
           
           OPTIONAL {{ 
             ?s rdfs:comment ?comment . 
-            FILTER (lang(?comment) = 'es') 
+            FILTER (lang(?comment) = '{lang}') 
           }}
           OPTIONAL {{ ?s foaf:depiction ?img }}
           
-          FILTER (?type IN (dbo:Person, dbo:Book, dbo:Writer, dbo:Organisation, dbo:University, dbo:City))
+          FILTER (?type IN (dbo:Person, dbo:Book, dbo:Organisation))
         }}
         LIMIT 10
         """
-
+                
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
         sparql.setTimeout(15)
@@ -489,3 +512,45 @@ def buscador_hibrido(q: str = Query(..., min_length=2)):
         "cantidad": len(total_resultados),
         "resultados": total_resultados
     }
+
+
+
+
+
+
+
+
+
+
+
+
+@app.get("/config/idioma/{lang_code}")
+def obtener_traducciones_schema(lang_code: str):
+    """
+    Devuelve un diccionario JSON con las traducciones de la estructura (T-Box).
+    Ejemplo: Si pides 'en', devuelve {"Bibliotecario": "Librarian", ...}
+    """
+    if lang_code not in ["es", "en"]:
+        raise HTTPException(400, "Idioma no soportado. Use 'es' o 'en'.")
+    
+    traducciones = {}
+    
+    # 1. Traducir nombres de Clases
+    for cls in onto.classes():
+        # Busca el label en el idioma solicitado
+        lbl = cls.label.get_by_lang(lang_code)
+        if lbl:
+            # cls.name es el ID interno (ej: 'Bibliotecario')
+            # lbl[0] es la traducción (ej: 'Librarian')
+            traducciones[cls.name] = lbl[0]
+        else:
+            # Si no hay traducción, usamos el nombre original como respaldo
+            traducciones[cls.name] = cls.name
+
+    # 2. Traducir nombres de Propiedades
+    for prop in onto.properties():
+        lbl = prop.label.get_by_lang(lang_code)
+        if lbl:
+            traducciones[prop.name] = lbl[0]
+            
+    return traducciones

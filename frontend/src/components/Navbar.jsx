@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Navbar.css';
 
-function Navbar({ onSearch, onNavigate, onViewList }) {
+function Navbar({ onSearch, onNavigate, onViewList, language, setLanguage, translations }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchCategory, setSearchCategory] = useState('Todo');
     const [menuOpen, setMenuOpen] = useState(false);
@@ -15,12 +15,17 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
         }
     };
 
+    // Función auxiliar para obtener traducción
+    const t = (key) => translations[key] || key;
+
     return (
         <nav className="navbar">
             <div className="navbar-container">
                 <div className="navbar-brand" onClick={() => onNavigate('dashboard')}>
                     <span className="brand-icon">📚</span>
-                    <span className="brand-text glow-text">BiblioOntología</span>
+                    <span className="brand-text glow-text">
+                        {t('Biblioteca') || 'BiblioOntología'}
+                    </span>
                 </div>
 
                 <form className="search-form" onSubmit={handleSubmit}>
@@ -29,18 +34,18 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                         value={searchCategory}
                         onChange={(e) => setSearchCategory(e.target.value)}
                     >
-                        <option value="Todo">Todo</option>
-                        <option value="Libro">Libros</option>
-                        <option value="Estudiante">Estudiantes</option>
-                        <option value="Docente">Docentes</option>
-                        <option value="Autor">Autores</option>
-                        <option value="Editorial">Editoriales</option>
+                        <option value="Todo">{t('Todo') || 'Todo'}</option>
+                        <option value="Libro">{t('Libro') || 'Libros'}</option>
+                        <option value="Estudiante">{t('Estudiante') || 'Estudiantes'}</option>
+                        <option value="Docente">{t('Docente') || 'Docentes'}</option>
+                        <option value="Autor">{t('Autor') || 'Autores'}</option>
+                        <option value="Editorial">{t('Editorial') || 'Editoriales'}</option>
                     </select>
 
                     <input
                         type="text"
                         className="search-input"
-                        placeholder="Buscar en la biblioteca..."
+                        placeholder={t('Buscar') || 'Buscar en la biblioteca...'}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -67,6 +72,24 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                     </div>
                 </form>
 
+                {/* Selector de idioma */}
+                <div className="language-selector">
+                    <button
+                        className={`lang-btn ${language === 'es' ? 'active' : ''}`}
+                        onClick={() => setLanguage('es')}
+                        title="Español"
+                    >
+                        🇪🇸 ES
+                    </button>
+                    <button
+                        className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                        onClick={() => setLanguage('en')}
+                        title="English"
+                    >
+                        🇺🇸 EN
+                    </button>
+                </div>
+
                 <button
                     className="menu-toggle"
                     onClick={() => setMenuOpen(!menuOpen)}
@@ -91,7 +114,7 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                             setMenuOpen(false);
                         }}
                     >
-                        Libros
+                        {t('Libro') || 'Libros'}
                     </button>
                     <button
                         className="nav-link"
@@ -100,7 +123,7 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                             setMenuOpen(false);
                         }}
                     >
-                        Estudiantes
+                        {t('Estudiante') || 'Estudiantes'}
                     </button>
                     <button
                         className="nav-link"
@@ -109,7 +132,7 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                             setMenuOpen(false);
                         }}
                     >
-                        Docentes
+                        {t('Docente') || 'Docentes'}
                     </button>
                     <button
                         className="nav-link"
@@ -118,7 +141,7 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                             setMenuOpen(false);
                         }}
                     >
-                        Revistas
+                        {t('Revista') || 'Revistas'}
                     </button>
                     <button
                         className="nav-link"
@@ -127,7 +150,7 @@ function Navbar({ onSearch, onNavigate, onViewList }) {
                             setMenuOpen(false);
                         }}
                     >
-                        Bibliotecarios
+                        {t('Bibliotecario') || 'Bibliotecarios'}
                     </button>
                 </div>
             </div>
