@@ -344,24 +344,20 @@ def obtener_editoriales():
 
 
 # --- ENDPOINT MAESTRO DE BÚSQUEDA (FACETED SEARCH) ---
+# --- LÓGICA DE BÚSQUEDA INTERNA (Helper Function) ---
 
-@app.get("/buscador")
-def buscador_semantico(q: str = Query(..., min_length=1, description="Texto a buscar"), clase: Optional[str] = Query(None, description="Filtro de clase (Ej: Libro, Estudiante)")):
+def _buscar_en_local(query_str: str, clase_filtro: str = None):
     """
-    Buscador unificado. 
-    - Si 'clase' es null: Busca en TODA la ontología.
-    - Si 'clase' tiene valor: Filtra solo esa categoría.
-    - Busca en: ID (IRI), Etiquetas (Label) y Propiedades de Datos (título, nombre).
+    Función auxiliar que busca en la ontología cargada en memoria.
+    Devuelve una lista de diccionarios.
     """
     resultados = []
-    query_str = q.lower()
+    q = query_str.lower()
     
-    # 1. Definir el alcance de búsqueda
-    if clase and onto[clase]:
-        # Si hay filtro, buscamos solo en esa clase (y sus subclases)
-        scope = onto[clase].instances()
+    # 1. Definir alcance
+    if clase_filtro and onto[clase_filtro]:
+        scope = onto[clase_filtro].instances()
     else:
-        # Si no, buscamos en todos los individuos de la ontología
         scope = onto.individuals()
 
     # 2. Iterar y buscar
@@ -369,37 +365,34 @@ def buscador_semantico(q: str = Query(..., min_length=1, description="Texto a bu
         match_found = False
         match_details = ""
 
-        # A. Buscar en el ID (IRI)
-        if query_str in ind.name.lower():
+        # A. ID
+        if q in ind.name.lower():
             match_found = True
             match_details = "Coincidencia en ID"
         
-        # B. Buscar en Labels (Etiquetas multilingües si existen)
+        # B. Labels
         if not match_found and hasattr(ind, "label"):
             for lbl in ind.label:
-                if query_str in lbl.lower():
+                if q in lbl.lower():
                     match_found = True
                     match_details = f"Coincidencia en etiqueta: {lbl}"
                     break
         
-        # C. Buscar en Propiedades comunes (titulo, nombre)
+        # C. Propiedades
         if not match_found:
-            # Lista de propiedades donde queremos buscar texto
             props_texto = ["titulo", "nombre", "descripcion", "carrera", "editorial", "autor"]
             for prop_name in props_texto:
                 if hasattr(ind, prop_name):
                     vals = getattr(ind, prop_name)
-                    # vals suele ser una lista en owlready2
                     for val in vals:
-                        if isinstance(val, str) and query_str in val.lower():
+                        if isinstance(val, str) and q in val.lower():
                             match_found = True
                             match_details = f"Coincidencia en {prop_name}: {val}"
                             break
                 if match_found: break
 
-        # 3. Si hubo coincidencia, agregar al resultado
         if match_found:
-            # Intentamos obtener un "Nombre legible" para mostrar en la UI
+            # Nombre bonito
             display_name = ind.name
             if hasattr(ind, "titulo") and ind.titulo: display_name = ind.titulo[0]
             elif hasattr(ind, "nombre") and ind.nombre: display_name = ind.nombre[0]
@@ -407,90 +400,92 @@ def buscador_semantico(q: str = Query(..., min_length=1, description="Texto a bu
 
             resultados.append({
                 "id": ind.name,
-                "tipo": ind.is_a[0].name, # La clase principal
+                "tipo": ind.is_a[0].name,
                 "nombre_mostrar": display_name,
-                "razon_match": match_details
+                "descripcion": match_details,
+                "origen": "Local",   # <--- ETIQUETA CLAVE
+                "imagen": None       # Localmente no solemos tener URLs de imágenes
             })
+            
+    return resultados
 
-    return {"cantidad": len(resultados), "resultados": resultados}
+# --- ENDPOINTS DE BÚSQUEDA ---
 
-
-
-
-
-
-
-
-    # --- ENDPOINT BÚSQUEDA ONLINE (DBpedia) ---
+@app.get("/buscador")
+def buscador_offline(q: str = Query(..., min_length=1), 
+                     clase: Optional[str] = Query(None)):
+    """
+    Modo Offline: Busca SOLO en el archivo .owl local.
+    """
+    results = _buscar_en_local(q, clase)
+    return {"cantidad": len(results), "resultados": results}
 
 @app.get("/buscador/online")
-def buscar_en_dbpedia(q: str = Query(..., min_length=2, description="Término a buscar en DBpedia")):
+def buscador_hibrido(q: str = Query(..., min_length=2)):
     """
-    Consulta OPTIMIZADA a DBpedia usando índice de texto completo.
+    Modo Híbrido: Busca en Local + DBpedia y combina los resultados.
     """
-    print(f"--- Consultando DBpedia para: {q} ---")
+    print(f"--- Búsqueda Híbrida para: {q} ---")
     
-    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+    # 1. Buscar Localmente primero
+    resultados_locales = _buscar_en_local(q)
     
-    # TRUCO DE OPTIMIZACIÓN:
-    # Usamos 'bif:contains' que es el buscador nativo de Virtuoso (el motor de DBpedia).
-    # Es 100 veces más rápido que usar FILTER(CONTAINS(...)).
-    
-    query = f"""
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX dbo: <http://dbpedia.org/ontology/>
-    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-
-    SELECT DISTINCT ?s ?label ?comment ?type ?img
-    WHERE {{
-      # Búsqueda rápida usando índice full-text
-      ?s rdfs:label ?label .
-      ?label bif:contains "'{q}'" . 
-      
-      ?s a ?type .
-      
-      # Solo etiquetas en español
-      FILTER (lang(?label) = 'es')
-      
-      OPTIONAL {{ 
-        ?s rdfs:comment ?comment . 
-        FILTER (lang(?comment) = 'es') 
-      }}
-      OPTIONAL {{ ?s foaf:depiction ?img }}
-      
-      # Filtramos tipos relevantes
-      FILTER (?type IN (dbo:Person, dbo:Book, dbo:Writer, dbo:Organisation, dbo:University, dbo:City))
-    }}
-    LIMIT 10
-    """
-
+    # 2. Buscar en DBpedia (Online)
+    resultados_online = []
     try:
+        sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+        
+        # Consulta optimizada (la misma de antes)
+        query = f"""
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+        SELECT DISTINCT ?s ?label ?comment ?type ?img
+        WHERE {{
+          ?s rdfs:label ?label .
+          ?label bif:contains "'{q}'" . 
+          ?s a ?type .
+          FILTER (lang(?label) = 'es')
+          
+          OPTIONAL {{ 
+            ?s rdfs:comment ?comment . 
+            FILTER (lang(?comment) = 'es') 
+          }}
+          OPTIONAL {{ ?s foaf:depiction ?img }}
+          
+          FILTER (?type IN (dbo:Person, dbo:Book, dbo:Writer, dbo:Organisation, dbo:University, dbo:City))
+        }}
+        LIMIT 10
+        """
+
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
-        sparql.setTimeout(20) # Aumentamos el tiempo de espera a 20 segundos
-        results = sparql.query().convert()
+        sparql.setTimeout(15)
+        dbpedia_data = sparql.query().convert()
         
-        resultados_formateados = []
-        
-        for r in results["results"]["bindings"]:
+        for r in dbpedia_data["results"]["bindings"]:
             tipo_raw = r["type"]["value"]
             tipo_clean = tipo_raw.split('/')[-1]
 
-            resultados_formateados.append({
+            resultados_online.append({
                 "id": r["s"]["value"],
                 "tipo": tipo_clean, 
                 "nombre_mostrar": r["label"]["value"],
                 "descripcion": r.get("comment", {}).get("value", "Sin descripción"),
-                "imagen": r.get("img", {}).get("value", None),
-                "origen": "DBpedia (Online)"
+                "origen": "DBpedia",  # <--- ETIQUETA CLAVE
+                "imagen": r.get("img", {}).get("value", None)
             })
             
-        return {
-            "cantidad": len(resultados_formateados),
-            "resultados": resultados_formateados
-        }
-
     except Exception as e:
-        print(f"Error conectando a DBpedia: {e}")
-        # Devolvemos un error limpio para que el frontend no colapse
-        return {"cantidad": 0, "resultados": [], "mensaje_error": "DBpedia está lenta, intenta de nuevo."}
+        print(f"Error en DBpedia (se mostrarán solo resultados locales): {e}")
+        # Si falla internet, no rompemos todo, solo seguimos con lo local
+    
+    # 3. Combinar resultados
+    # Ponemos los locales primero porque son "nuestros", luego los de internet
+    total_resultados = resultados_locales + resultados_online
+    
+    return {
+        "cantidad": len(total_resultados),
+        "resultados": total_resultados
+    }

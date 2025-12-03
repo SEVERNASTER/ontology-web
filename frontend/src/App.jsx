@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
-import SearchResults from './components/SearchResults';
-import DetailModal from './components/DetailModal';
+import SearchResults from './components/Searchresults';
+import DetailModal from './components/Detailmodal';
 import ListView from './components/ListView';
 import './App.css';
 
@@ -23,10 +23,10 @@ function App() {
       if (category && category !== 'Todo' && !onlineMode) {
         params.append('clase', category);
       }
-
+      
       const response = await fetch(`${API_BASE}${endpoint}?${params}`);
       const data = await response.json();
-
+      
       setSearchResults(data);
       setCurrentView('search');
     } catch (error) {
@@ -44,7 +44,7 @@ function App() {
 
   const handleItemClick = async (itemId, itemData = null) => {
     // Si itemData ya está proporcionado (desde búsqueda online), usarlo directamente
-    if (itemData && itemData.origen === "DBpedia (Online)") {
+    if (itemData && itemData.origen === "DBpedia") {
       setSelectedItem(itemData);
       return;
     }
@@ -63,7 +63,7 @@ function App() {
         id: itemId,
         nombre_mostrar: itemId.split('/').pop().replace(/_/g, ' '),
         tipo: 'DBpedia Resource',
-        origen: 'DBpedia (Online)'
+        origen: 'DBpedia'
       });
       return;
     }
@@ -89,7 +89,7 @@ function App() {
 
   return (
     <div className="app">
-      <Navbar
+      <Navbar 
         onSearch={handleSearch}
         onNavigate={(view) => {
           setCurrentView(view);
@@ -97,25 +97,25 @@ function App() {
         }}
         onViewList={handleViewList}
       />
-
+      
       <main className="main-content">
         {currentView === 'dashboard' && (
-          <Dashboard
+          <Dashboard 
             onViewList={handleViewList}
             onItemClick={handleItemClick}
           />
         )}
-
+        
         {currentView === 'search' && (
-          <SearchResults
+          <SearchResults 
             results={searchResults}
             onItemClick={handleItemClick}
             isSearching={isSearching}
           />
         )}
-
+        
         {currentView === 'list' && listType && (
-          <ListView
+          <ListView 
             type={listType}
             onItemClick={handleItemClick}
           />
@@ -123,7 +123,7 @@ function App() {
       </main>
 
       {selectedItem && (
-        <DetailModal
+        <DetailModal 
           item={selectedItem}
           onClose={handleCloseModal}
           onNavigate={handleNavigateToItem}

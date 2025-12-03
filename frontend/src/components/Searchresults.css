@@ -1,6 +1,8 @@
 .search-results {
+    /* padding: 30px; */
     padding-top: 150px;
     width: 100vw;
+
 }
 
 .search-results-loading {
@@ -281,6 +283,37 @@
     .loading-title {
         font-size: 26px;
     }
+}
+
+.result-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.badge-origin-local {
+    background: #ea580c40;
+    border: 1px solid #ea580c;
+    color: #fff;
+    box-shadow: 0 0 10px #ea580c;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.badge-origin-dbpedia {
+    background: #5b21b640;
+    border: 1px solid #5b21b6;
+    color: #fff;
+    box-shadow: 0 0 10px #5b21b6;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.result-card-header {
+    align-items: flex-start;
+    /* Cambiado de center */
+    gap: 10px;
 }
 
 @media (max-width: 480px) {

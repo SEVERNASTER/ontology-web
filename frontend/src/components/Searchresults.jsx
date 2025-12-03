@@ -68,7 +68,7 @@ function SearchResults({ results, onItemClick, isSearching }) {
                         style={{ animationDelay: `${index * 0.1}s` }}
                         onClick={() => {
                             // Para resultados de DBpedia, pasar el objeto completo
-                            if (item.origen === "DBpedia (Online)") {
+                            if (item.origen === "DBpedia") {
                                 onItemClick(item.id, item);
                             } else {
                                 onItemClick(item.id);
@@ -88,25 +88,26 @@ function SearchResults({ results, onItemClick, isSearching }) {
 
                         <div className="result-card-header">
                             <span className="result-icon">{getIcon(item.tipo)}</span>
-                            <span className={`badge ${getBadgeClass(item.tipo)}`}>
-                                {item.tipo}
-                            </span>
+                            <div className="result-badges">
+                                <span className={`badge ${getBadgeClass(item.tipo)}`}>
+                                    {item.tipo}
+                                </span>
+                                {item.origen && (
+                                    <span className={`badge-origin ${item.origen === 'Local' ? 'badge-origin-local' : 'badge-origin-dbpedia'}`}>
+                                        {item.origen === 'Local' ? (
+                                            <>💾 Local</>
+                                        ) : (
+                                            <>🌐 DBpedia</>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <h3 className="result-name">{item.nombre_mostrar}</h3>
 
                         {item.descripcion && item.descripcion !== "Sin descripción" && (
                             <p className="result-description">{item.descripcion}</p>
-                        )}
-
-                        {item.razon_match && (
-                            <p className="result-match">{item.razon_match}</p>
-                        )}
-
-                        {item.origen && (
-                            <div className="result-origin">
-                                <span className="origin-badge">{item.origen}</span>
-                            </div>
                         )}
 
                         <div className="result-footer">

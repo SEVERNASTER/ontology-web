@@ -4,7 +4,7 @@ function DetailModal({ item, onClose, onNavigate }) {
     if (!item) return null;
 
     // Detectar si es un resultado de DBpedia (online)
-    const isOnlineResult = item.origen === "DBpedia (Online)" ||
+    const isOnlineResult = item.origen === "DBpedia" ||
         (typeof item.id === 'string' && item.id.startsWith('http://dbpedia.org'));
 
     const extractIdFromRelation = (relationText) => {
