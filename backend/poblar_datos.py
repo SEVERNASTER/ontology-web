@@ -5,11 +5,11 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from faker import Faker
 
 # --- CONFIGURACIÓN DEL BATCH ---
-CANTIDAD_LIBROS_DBPEDIA = 200  # Intentará traer esta cantidad
+CANTIDAD_LIBROS_DBPEDIA = 200  
 CANTIDAD_ESTUDIANTES = 100
 CANTIDAD_DOCENTES = 50
 CANTIDAD_BIBLIOTECARIOS = 20
-PROBABILIDAD_PRESTAMO = 0.7    # 70% de los estudiantes tendrán un libro
+PROBABILIDAD_PRESTAMO = 0.7    
 
 ONTO_FILE = "biblioteca.owl"
 IRI_BASE = "http://uni.edu/biblioteca.owl#"
@@ -21,17 +21,16 @@ print(f"--- Cargando estructura base: {ONTO_FILE} ---")
 onto = get_ontology(ONTO_FILE).load()
 
 def limpiar_texto(texto):
-    """Limpia strings para usarlos como IDs seguros (sin tildes ni espacios)"""
+    """Limpia strings para usarlos como IDs seguros."""
+    if not texto: return "Desconocido"
     texto = texto.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
     texto = texto.replace("ñ", "n").replace("Ñ", "N")
-    # Dejar solo alfanuméricos
     return "".join(x for x in texto if x.isalnum())
 
 def obtener_libros_masivos(limite):
     print(f">>> Conectando a DBpedia para descargar {limite} libros...")
     sparql = SPARQLWrapper("http://es.dbpedia.org/sparql")
     
-    # Consulta optimizada para traer más datos
     query = f"""
     PREFIX dbo: <http://dbpedia.org/ontology/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -59,7 +58,6 @@ def obtener_libros_masivos(limite):
     try:
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
-        # Timeout de 30 segs para evitar bloqueos
         sparql.setTimeout(30) 
         results = sparql.query().convert()
         
@@ -78,7 +76,6 @@ def obtener_libros_masivos(limite):
         return []
 
 def generar_libros_sinteticos(cantidad_faltante):
-    """Si DBpedia falla o trae pocos, rellenamos con Faker"""
     libros = []
     for _ in range(cantidad_faltante):
         libros.append({
@@ -89,45 +86,80 @@ def generar_libros_sinteticos(cantidad_faltante):
         })
     return libros
 
+def crear_datos_demo_garantizados():
+    """
+    Crea manualmente los datos para probar Quechua, Alemán y Francés.
+    """
+    print(">>> Creando datos DEMO multilingües (Arguedas, Kafka, etc)...")
+    
+    # Referencias directas a clases
+    Libro = onto.Libro
+    Persona = onto.Persona
+    Editorial = onto.Editorial
+    
+    # 1. José María Arguedas (Quechua)
+    aut_arguedas = Persona("autor_arguedas")
+    aut_arguedas.nombre = ["José María Arguedas"]
+    
+    l_yawar = Libro("libro_yawar_fiesta")
+    l_yawar.titulo = ["Yawar Fiesta"]
+    l_yawar.anio_publicacion = [1941]
+    l_yawar.pais_origen = ["Perú"]
+    
+    # Relación CORRECTA: Autor -> escribe -> Libro
+    aut_arguedas.escribe.append(l_yawar) 
+
+    # 2. Franz Kafka (Alemán)
+    aut_kafka = Persona("autor_kafka")
+    aut_kafka.nombre = ["Franz Kafka"]
+    
+    l_meta = Libro("libro_metamorfosis")
+    l_meta.titulo = ["Die Verwandlung"]
+    l_meta.anio_publicacion = [1915]
+    
+    aut_kafka.escribe.append(l_meta)
+
+    return [l_yawar, l_meta] # Retornamos para usarlos en préstamos
+
 def ejecutar_poblado():
     start_time = time.time()
     libros_creados = []
     
     with onto:
-        # ---------------------------------------------------------
-        # 1. LIBROS (DBpedia + Relleno)
-        # ---------------------------------------------------------
+        # 1. Insertar Datos Demo (Para asegurar pruebas de idioma)
+        libros_creados.extend(crear_datos_demo_garantizados())
+
+        # 2. Insertar Datos Masivos (DBpedia)
         datos_libros = obtener_libros_masivos(CANTIDAD_LIBROS_DBPEDIA)
         
-        # Si DBpedia trajo menos de lo esperado, rellenar
         if len(datos_libros) < CANTIDAD_LIBROS_DBPEDIA:
             faltan = CANTIDAD_LIBROS_DBPEDIA - len(datos_libros)
             print(f">>> Rellenando {faltan} libros con datos sintéticos...")
             datos_libros += generar_libros_sinteticos(faltan)
             
-        print(f">>> Insertando {len(datos_libros)} libros y autores en la ontología...")
+        print(f">>> Procesando {len(datos_libros)} libros masivos...")
         
         for i, item in enumerate(datos_libros):
-            # ID único: Título + un número hash corto para evitar colisiones si hay títulos iguales
             hash_id = str(random.randint(1000, 9999))
-            id_libro = limpiar_texto(item["titulo"])[:25] + hash_id
-            id_autor = limpiar_texto(item["autor"])[:20] + hash_id
-            id_editorial = limpiar_texto(item["editorial"])[:20] + hash_id
+            # IDs seguros
+            id_libro = limpiar_texto(item["titulo"])[:30] + hash_id
+            id_autor = "aut_" + limpiar_texto(item["autor"])[:20] + hash_id
+            id_editorial = "edit_" + limpiar_texto(item["editorial"])[:20] + hash_id
             
             # Editorial
-            if not onto[id_editorial]: # Crear solo si no existe
+            if onto[id_editorial]:
+                editorial = onto[id_editorial]
+            else:
                 editorial = onto.Editorial(id_editorial)
                 editorial.nombre = [item["editorial"]]
                 editorial.pais_origen = [item["pais"]]
-            else:
-                editorial = onto[id_editorial]
             
             # Autor
-            if not onto[id_autor]:
+            if onto[id_autor]:
+                autor = onto[id_autor]
+            else:
                 autor = onto.Persona(id_autor)
                 autor.nombre = [item["autor"]]
-            else:
-                autor = onto[id_autor]
             
             # Libro
             libro = onto.Libro(id_libro)
@@ -135,60 +167,55 @@ def ejecutar_poblado():
             libro.anio_publicacion = [random.randint(1950, 2023)]
             libro.estado_libro = ["Disponible"]
             
-            # Relaciones
-            libro.escribe.append(autor)
+            # --- CORRECCIÓN DE RELACIONES ---
+            # El autor escribe el libro (Dominio: Persona, Rango: Publicacion)
+            autor.escribe.append(libro)
+            
+            # La editorial publica el libro (Dominio: Editorial, Rango: Publicacion)
             editorial.publica.append(libro)
             
             libros_creados.append(libro)
             
             if i % 50 == 0 and i > 0:
-                print(f"   ... procesados {i} libros")
+                print(f"   ... creados {i} libros")
 
-        # ---------------------------------------------------------
-        # 2. USUARIOS (Estudiantes)
-        # ---------------------------------------------------------
+        # 3. ESTUDIANTES
         print(f">>> Generando {CANTIDAD_ESTUDIANTES} estudiantes...")
+        carreras = ["Sistemas", "Derecho", "Medicina", "Arquitectura", "Psicologia", "Civil"]
+        
         for i in range(CANTIDAD_ESTUDIANTES):
-            est_id = f"Estudiante{i+1}"
-            est = onto.Estudiante(est_id)
+            est = onto.Estudiante(f"Estudiante_{i+1}")
             est.nombre = [fake.name()]
             est.codigo_sis = [str(random.randint(20200000, 20250000))]
-            est.carrera = [random.choice(["Sistemas", "Derecho", "Medicina", "Arquitectura", "Psicologia", "Civil"])]
-            est.email = [fake.email()]
-            est.fecha_registro = [fake.date_between(start_date='-4y', end_date='today')]
+            est.carrera = [random.choice(carreras)]
             
-            # Asignar Préstamos (Relación)
+            # Préstamos aleatorios
             if libros_creados and random.random() < PROBABILIDAD_PRESTAMO:
-                # Un estudiante puede tener 1 o 2 libros
-                num_libros = random.choice([1, 2])
-                for _ in range(num_libros):
-                    libro_prestado = random.choice(libros_creados)
-                    est.toma_prestado.append(libro_prestado)
-                    libro_prestado.estado_libro = ["Prestado"]
+                libro_prestado = random.choice(libros_creados)
+                # Estudiante -> toma_prestado -> Libro
+                est.toma_prestado.append(libro_prestado)
+                libro_prestado.estado_libro = ["Prestado"]
 
-        # ---------------------------------------------------------
-        # 3. DOCENTES Y BIBLIOTECARIOS
-        # ---------------------------------------------------------
-        print(f">>> Generando {CANTIDAD_DOCENTES} docentes y {CANTIDAD_BIBLIOTECARIOS} bibliotecarios...")
+        # 4. DOCENTES Y BIBLIOTECARIOS
+        print(f">>> Generando personal ({CANTIDAD_DOCENTES} docentes, {CANTIDAD_BIBLIOTECARIOS} bibliotecarios)...")
         
         for i in range(CANTIDAD_DOCENTES):
-            doc = onto.Docente(f"Docente{i+1}")
+            doc = onto.Docente(f"Docente_{i+1}")
             doc.nombre = [fake.name()]
-            doc.departamento = [random.choice(["Ciencias Exactas", "Humanidades", "Salud", "Tecnología"])]
+            doc.departamento = [random.choice(["Exactas", "Humanidades", "Salud", "Tecnología"])]
             doc.item_docente = [str(random.randint(1000, 5000))]
 
         for i in range(CANTIDAD_BIBLIOTECARIOS):
-            bib = onto.Bibliotecario(f"Bibliotecario{i+1}")
+            bib = onto.Bibliotecario(f"Bibliotecario_{i+1}")
             bib.nombre = [fake.name()]
             bib.turno = [random.choice(["Mañana", "Tarde", "Noche"])]
             bib.id_empleado = [f"BIB-{random.randint(100, 999)}"]
 
-    print(">>> Guardando archivo .owl (esto puede tardar un poco)...")
+    print(">>> Guardando ontología...")
     onto.save(file=ONTO_FILE)
     
-    tiempo_total = time.time() - start_time
-    print(f"--- ¡PROCESO TERMINADO en {tiempo_total:.2f} segundos! ---")
-    print(f"Total aproximado de individuos: {len(list(onto.individuals()))}")
+    print(f"--- ¡LISTO! Ontología guardada en {ONTO_FILE} ---")
+    print(f"Total individuos: {len(list(onto.individuals()))}")
 
 if __name__ == "__main__":
     ejecutar_poblado()

@@ -49,9 +49,6 @@ class SPARQLQuery(BaseModel):
 def inicializar_ontologia_base():
     global onto
     
-    # ---------------------------------------------------------
-    # 1. CARGA O CREACIÓN DE LA ONTOLOGÍA (LO QUE FALTABA)
-    # ---------------------------------------------------------
     if not os.path.exists(ONTO_FILE):
         print(f"--- Creando ontología desde cero: {ONTO_FILE} ---")
         onto = get_ontology(IRI_BASE)
@@ -59,73 +56,113 @@ def inicializar_ontologia_base():
         print(f"--- Cargando ontología existente: {ONTO_FILE} ---")
         onto = get_ontology(ONTO_FILE).load()
 
-    # ---------------------------------------------------------
-    # 2. DEFINICIÓN DE ESTRUCTURA (Multilingüe y Ordenada)
-    # ---------------------------------------------------------
     with onto:
         
         # --- NIVEL 1: CLASES BASE (Padres) ---
-        
         class Persona(Thing): 
-            label = [locstr("Persona", "es"), locstr("Person", "en")]
+            label = [
+                locstr("Persona", "es"), locstr("Person", "en"), 
+                locstr("Runa", "qu"), locstr("Personne", "fr"), locstr("Person", "de")
+            ]
             comment = [locstr("Ser humano", "es"), locstr("Human being", "en")]
         
         class Organizacion(Thing): 
-            label = [locstr("Organización", "es"), locstr("Organization", "en")]
+            label = [
+                locstr("Organización", "es"), locstr("Organization", "en"), 
+                locstr("Tantanakuy", "qu"), locstr("Organisation", "fr"), locstr("Organisation", "de")
+            ]
         
         class Publicacion(Thing): 
-            label = [locstr("Publicación", "es"), locstr("Publication", "en")]
+            label = [
+                locstr("Publicación", "es"), locstr("Publication", "en"), 
+                locstr("Qillqasqa", "qu"), locstr("Publication", "fr"), locstr("Publikation", "de")
+            ]
 
         # --- NIVEL 2: SUBCLASES INTERMEDIAS ---
-        
         class Usuario(Persona): 
-            label = [locstr("Usuario", "es"), locstr("User", "en")]
+            label = [
+                locstr("Usuario", "es"), locstr("User", "en"), 
+                locstr("Ruwaq", "qu"), locstr("Utilisateur", "fr"), locstr("Benutzer", "de")
+            ]
             
         class Bibliotecario(Persona): 
-            label = [locstr("Bibliotecario", "es"), locstr("Librarian", "en")]
+            label = [
+                locstr("Bibliotecario", "es"), locstr("Librarian", "en"), 
+                locstr("Mayt'u kamayuq", "qu"), locstr("Bibliothécaire", "fr"), locstr("Bibliothekar", "de")
+            ]
             
         class Biblioteca(Organizacion): 
-            label = [locstr("Biblioteca", "es"), locstr("Library", "en")]
+            label = [
+                locstr("Biblioteca", "es"), locstr("Library", "en"), 
+                locstr("Ñawinchana wasi", "qu"), locstr("Bibliothèque", "fr"), locstr("Bibliothek", "de")
+            ]
             
         class Editorial(Organizacion):
-            label = [locstr("Editorial", "es"), locstr("Publisher", "en")]
+            label = [
+                locstr("Editorial", "es"), locstr("Publisher", "en"), 
+                locstr("Qillqa wasi", "qu"), locstr("Maison d'édition", "fr"), locstr("Verlag", "de")
+            ]
             
         class PublicacionPeriodica(Publicacion):
-            label = [locstr("Publicación Periódica", "es"), locstr("Periodical", "en")]
+            label = [
+                locstr("Publicación Periódica", "es"), locstr("Periodical", "en"), 
+                locstr("Sapa kuti qillqa", "qu"), locstr("Périodique", "fr"), locstr("Zeitschrift", "de")
+            ]
 
         # --- NIVEL 3: CLASES ESPECÍFICAS (Hojas) ---
-
         class Docente(Usuario): 
-            label = [locstr("Docente", "es"), locstr("Professor", "en")]
+            label = [
+                locstr("Docente", "es"), locstr("Professor", "en"), 
+                locstr("Yachachiq", "qu"), locstr("Enseignant", "fr"), locstr("Dozent", "de")
+            ]
         
         class Estudiante(Usuario): 
-            label = [locstr("Estudiante", "es"), locstr("Student", "en")]
+            label = [
+                locstr("Estudiante", "es"), locstr("Student", "en"), 
+                locstr("Yachakuq", "qu"), locstr("Étudiant", "fr"), locstr("Student", "de")
+            ]
 
         class Libro(Publicacion): 
-            label = [locstr("Libro", "es"), locstr("Book", "en")]
+            label = [
+                locstr("Libro", "es"), locstr("Book", "en"), 
+                locstr("Mayt'u", "qu"), locstr("Livre", "fr"), locstr("Buch", "de")
+            ]
         
         class Revista(PublicacionPeriodica): 
-            label = [locstr("Revista", "es"), locstr("Magazine", "en")]
+            label = [
+                locstr("Revista", "es"), locstr("Magazine", "en"), 
+                locstr("Revisita", "qu"), locstr("Magazine", "fr"), locstr("Magazin", "de")
+            ]
             
         class Periodico(PublicacionPeriodica):
-            label = [locstr("Periódico", "es"), locstr("Newspaper", "en")]
+            label = [
+                locstr("Periódico", "es"), locstr("Newspaper", "en"), 
+                locstr("Willakuy p'anqa", "qu"), locstr("Journal", "fr"), locstr("Zeitung", "de")
+            ]
 
         # --- PROPIEDADES DE DATOS (Atributos) ---
-        
         class titulo(DataProperty):
-            label = [locstr("título", "es"), locstr("title", "en")]
+            label = [
+                locstr("título", "es"), locstr("title", "en"), 
+                locstr("suti", "qu"), locstr("titre", "fr"), locstr("Titel", "de")
+            ]
             range = [str]
 
         class nombre(DataProperty):
-            label = [locstr("nombre", "es"), locstr("name", "en")]
+            label = [
+                locstr("nombre", "es"), locstr("name", "en"), 
+                locstr("suti", "qu"), locstr("nom", "fr"), locstr("Name", "de")
+            ]
             range = [str]
             
         class anio_publicacion(DataProperty):
-            label = [locstr("año publicación", "es"), locstr("year", "en")]
+            label = [
+                locstr("año publicación", "es"), locstr("year", "en"), 
+                locstr("wata", "qu"), locstr("année", "fr"), locstr("Jahr", "de")
+            ]
             range = [int]
             
-        # Agrega aquí el resto de tus propiedades (ci, codigo_sis, etc.) 
-        # Si no las defines, owlready2 las creará dinámicamente, pero mejor definirlas.
+        # Definiciones de propiedades sin traducciones explícitas (se mantienen igual)
         class codigo_sis(DataProperty): domain = [Estudiante]; range = [str]
         class carrera(DataProperty): domain = [Estudiante]; range = [str]
         class item_docente(DataProperty): domain = [Docente]; range = [str]
@@ -139,19 +176,27 @@ def inicializar_ontologia_base():
         class sitio_web(DataProperty): domain = [Editorial]; range = [str]
 
         # --- PROPIEDADES DE OBJETO (Relaciones) ---
-
         class escribe(ObjectProperty):
-            label = [locstr("escribe", "es"), locstr("writes", "en")]
+            label = [
+                locstr("escribe", "es"), locstr("writes", "en"), 
+                locstr("qillqan", "qu"), locstr("écrit", "fr"), locstr("schreibt", "de")
+            ]
             domain = [Persona]
             range = [Publicacion]
             
         class publica(ObjectProperty):
-            label = [locstr("publica", "es"), locstr("publishes", "en")]
+            label = [
+                locstr("publica", "es"), locstr("publishes", "en"), 
+                locstr("ch'ipin", "qu"), locstr("publie", "fr"), locstr("veröffentlicht", "de")
+            ]
             domain = [Editorial]
             range = [Publicacion]
 
         class toma_prestado(ObjectProperty):
-            label = [locstr("toma prestado", "es"), locstr("borrows", "en")]
+            label = [
+                locstr("toma prestado", "es"), locstr("borrows", "en"), 
+                locstr("mañakun", "qu"), locstr("emprunte", "fr"), locstr("leiht aus", "de")
+            ]
             domain = [Usuario]
             range = [Libro]
 
@@ -163,10 +208,8 @@ def inicializar_ontologia_base():
             domain = [Bibliotecario]
             range = [Biblioteca]
 
-    # Guardar cambios finales
     onto.save(file=ONTO_FILE)
-    print("--- Ontología inicializada CORRECTAMENTE (Multilingüe y Estructurada) ---")
-
+    print("--- Ontología inicializada CORRECTAMENTE (5 Idiomas) ---")
 
     
 
@@ -441,14 +484,15 @@ def buscador_offline(q: str = Query(..., min_length=1),
     results = _buscar_en_local(q, clase)
     return {"cantidad": len(results), "resultados": results}
 
+
 @app.get("/buscador/online")
 def buscador_hibrido(q: str = Query(..., min_length=2), 
-                     lang: str = Query("es", description="Idioma: 'es' o 'en'")):
+                     lang: str = Query("es", description="Idioma: 'es', 'en', 'qu', 'fr', 'de'")):
     
     print(f"--- Búsqueda Híbrida: '{q}' en idioma '{lang}' ---")
 
-    # 1. Búsqueda Local (Tu ontología)
-    # (El buscador local ya busca en todos los labels, así que encontrará "Book" o "Libro")
+    # 1. Búsqueda Local 
+    # (owlready2 busca automáticamente en todos los locstr, así que si buscas 'Mayt'u' lo encontrará)
     resultados_locales = _buscar_en_local(q) 
 
     # 2. Búsqueda Online (DBpedia)
@@ -456,7 +500,9 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
     try:
         sparql = SPARQLWrapper("http://dbpedia.org/sparql")
         
-        # Consulta SPARQL dinámica según el idioma
+        # Consulta SPARQL
+        # Nota: DBpedia a veces usa códigos diferentes para dialectos, pero 'fr' y 'de' son estándar.
+        # Para quechua, DBpedia usa 'qu', aunque hay menos contenido.
         query = f"""
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -468,7 +514,7 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
           ?label bif:contains "'{q}'" . 
           ?s a ?type .
           
-          # --- FILTRO DE IDIOMA DINÁMICO ---
+          # --- FILTRO DE IDIOMA ---
           FILTER (lang(?label) = '{lang}') 
           
           OPTIONAL {{ 
@@ -496,16 +542,13 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
                 "tipo": tipo_clean, 
                 "nombre_mostrar": r["label"]["value"],
                 "descripcion": r.get("comment", {}).get("value", "Sin descripción"),
-                "origen": "DBpedia",  # <--- ETIQUETA CLAVE
+                "origen": "DBpedia", 
                 "imagen": r.get("img", {}).get("value", None)
             })
             
     except Exception as e:
-        print(f"Error en DBpedia (se mostrarán solo resultados locales): {e}")
-        # Si falla internet, no rompemos todo, solo seguimos con lo local
+        print(f"Error en DBpedia o sin conexión: {e}")
     
-    # 3. Combinar resultados
-    # Ponemos los locales primero porque son "nuestros", luego los de internet
     total_resultados = resultados_locales + resultados_online
     
     return {
@@ -523,15 +566,16 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
 
 
 
-
 @app.get("/config/idioma/{lang_code}")
 def obtener_traducciones_schema(lang_code: str):
     """
-    Devuelve un diccionario JSON con las traducciones de la estructura (T-Box).
-    Ejemplo: Si pides 'en', devuelve {"Bibliotecario": "Librarian", ...}
+    Devuelve las traducciones de la estructura (T-Box).
+    Idiomas soportados: es, en, qu, fr, de
     """
-    if lang_code not in ["es", "en"]:
-        raise HTTPException(400, "Idioma no soportado. Use 'es' o 'en'.")
+    idiomas_soportados = ["es", "en", "qu", "fr", "de"]
+    
+    if lang_code not in idiomas_soportados:
+        raise HTTPException(400, f"Idioma no soportado. Use: {', '.join(idiomas_soportados)}")
     
     traducciones = {}
     
@@ -540,17 +584,19 @@ def obtener_traducciones_schema(lang_code: str):
         # Busca el label en el idioma solicitado
         lbl = cls.label.get_by_lang(lang_code)
         if lbl:
-            # cls.name es el ID interno (ej: 'Bibliotecario')
-            # lbl[0] es la traducción (ej: 'Librarian')
             traducciones[cls.name] = lbl[0]
         else:
-            # Si no hay traducción, usamos el nombre original como respaldo
-            traducciones[cls.name] = cls.name
+            # Fallback: Si no hay traducción en Quechua, intenta Español, luego Inglés, luego el nombre interno
+            lbl_es = cls.label.get_by_lang("es")
+            traducciones[cls.name] = lbl_es[0] if lbl_es else cls.name
 
     # 2. Traducir nombres de Propiedades
     for prop in onto.properties():
         lbl = prop.label.get_by_lang(lang_code)
         if lbl:
             traducciones[prop.name] = lbl[0]
+        else:
+             lbl_es = prop.label.get_by_lang("es")
+             traducciones[prop.name] = lbl_es[0] if lbl_es else prop.name
             
     return traducciones
