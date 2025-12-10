@@ -4,7 +4,6 @@ from owlready2 import *
 from SPARQLWrapper import SPARQLWrapper, JSON
 from faker import Faker
 
-# --- CONFIGURACIÓN DEL BATCH ---
 CANTIDAD_LIBROS_DBPEDIA = 200  
 CANTIDAD_ESTUDIANTES = 100
 CANTIDAD_DOCENTES = 50
@@ -14,14 +13,12 @@ PROBABILIDAD_PRESTAMO = 0.7
 ONTO_FILE = "biblioteca.owl"
 IRI_BASE = "http://uni.edu/biblioteca.owl#"
 
-# Inicializar Faker
 fake = Faker('es_ES')
 
 print(f"--- Cargando estructura base: {ONTO_FILE} ---")
 onto = get_ontology(ONTO_FILE).load()
 
 def limpiar_texto(texto):
-    """Limpia strings para usarlos como IDs seguros."""
     if not texto: return "Desconocido"
     texto = texto.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
     texto = texto.replace("ñ", "n").replace("Ñ", "N")
@@ -106,7 +103,6 @@ def crear_datos_demo_garantizados():
     l_yawar.anio_publicacion = [1941]
     l_yawar.pais_origen = ["Perú"]
     
-    # Relación CORRECTA: Autor -> escribe -> Libro
     aut_arguedas.escribe.append(l_yawar) 
 
     # 2. Franz Kafka (Alemán)
@@ -119,14 +115,13 @@ def crear_datos_demo_garantizados():
     
     aut_kafka.escribe.append(l_meta)
 
-    return [l_yawar, l_meta] # Retornamos para usarlos en préstamos
+    return [l_yawar, l_meta] 
 
 def ejecutar_poblado():
     start_time = time.time()
     libros_creados = []
     
     with onto:
-        # 1. Insertar Datos Demo (Para asegurar pruebas de idioma)
         libros_creados.extend(crear_datos_demo_garantizados())
 
         # 2. Insertar Datos Masivos (DBpedia)
@@ -167,11 +162,8 @@ def ejecutar_poblado():
             libro.anio_publicacion = [random.randint(1950, 2023)]
             libro.estado_libro = ["Disponible"]
             
-            # --- CORRECCIÓN DE RELACIONES ---
-            # El autor escribe el libro (Dominio: Persona, Rango: Publicacion)
             autor.escribe.append(libro)
             
-            # La editorial publica el libro (Dominio: Editorial, Rango: Publicacion)
             editorial.publica.append(libro)
             
             libros_creados.append(libro)

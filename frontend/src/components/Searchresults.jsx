@@ -67,7 +67,6 @@ function SearchResults({ results, onItemClick, isSearching }) {
                         className="result-card fade-in"
                         style={{ animationDelay: `${index * 0.1}s` }}
                         onClick={() => {
-                            // Para resultados de DBpedia, pasar el objeto completo
                             if (item.origen === "DBpedia") {
                                 onItemClick(item.id, item);
                             } else {

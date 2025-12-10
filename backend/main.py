@@ -446,7 +446,6 @@ def _buscar_en_local(query_str: str, clase_filtro: str = None):
                 if match_found: break
 
         if match_found:
-            # Nombre bonito
             display_name = ind.name
             if hasattr(ind, "titulo") and ind.titulo: display_name = ind.titulo[0]
             elif hasattr(ind, "nombre") and ind.nombre: display_name = ind.nombre[0]
@@ -457,8 +456,8 @@ def _buscar_en_local(query_str: str, clase_filtro: str = None):
                 "tipo": ind.is_a[0].name,
                 "nombre_mostrar": display_name,
                 "descripcion": match_details,
-                "origen": "Local",   # <--- ETIQUETA CLAVE
-                "imagen": None       # Localmente no solemos tener URLs de imágenes
+                "origen": "Local",   
+                "imagen": None       
             })
             
     return resultados
@@ -482,7 +481,6 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
     print(f"--- Búsqueda Híbrida: '{q}' en idioma '{lang}' ---")
 
     # 1. Búsqueda Local 
-    # (owlready2 busca automáticamente en todos los locstr, así que si buscas 'Mayt'u' lo encontrará)
     resultados_locales = _buscar_en_local(q) 
 
     # 2. Búsqueda Online (DBpedia)
@@ -491,8 +489,6 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
         sparql = SPARQLWrapper("http://dbpedia.org/sparql")
         
         # Consulta SPARQL
-        # Nota: DBpedia a veces usa códigos diferentes para dialectos, pero 'fr' y 'de' son estándar.
-        # Para quechua, DBpedia usa 'qu', aunque hay menos contenido.
         query = f"""
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -558,10 +554,6 @@ def buscador_hibrido(q: str = Query(..., min_length=2),
 
 @app.get("/config/idioma/{lang_code}")
 def obtener_traducciones_schema(lang_code: str):
-    """
-    Devuelve las traducciones de la estructura (T-Box).
-    Idiomas soportados: es, en, qu, fr, de
-    """
     idiomas_soportados = ["es", "en", "qu", "fr", "de"]
     
     if lang_code not in idiomas_soportados:
@@ -571,12 +563,10 @@ def obtener_traducciones_schema(lang_code: str):
     
     # 1. Traducir nombres de Clases
     for cls in onto.classes():
-        # Busca el label en el idioma solicitado
         lbl = cls.label.get_by_lang(lang_code)
         if lbl:
             traducciones[cls.name] = lbl[0]
         else:
-            # Fallback: Si no hay traducción en Quechua, intenta Español, luego Inglés, luego el nombre interno
             lbl_es = cls.label.get_by_lang("es")
             traducciones[cls.name] = lbl_es[0] if lbl_es else cls.name
 
