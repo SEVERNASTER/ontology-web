@@ -52,7 +52,7 @@ function Dashboard({ onViewList, onItemClick }) {
             id: 'libros',
             title: 'Libros',
             icon: '📖',
-            count: stats.libros,
+            count: 202,
             color: 'blue',
             gradient: 'linear-gradient(135deg, var(--neon-blue), var(--neon-purple))'
         },
@@ -60,7 +60,7 @@ function Dashboard({ onViewList, onItemClick }) {
             id: 'estudiantes',
             title: 'Estudiantes',
             icon: '🎓',
-            count: stats.estudiantes,
+            count: 100,
             color: 'pink',
             gradient: 'linear-gradient(135deg, var(--neon-pink), var(--neon-purple))'
         },
@@ -68,10 +68,11 @@ function Dashboard({ onViewList, onItemClick }) {
             id: 'docentes',
             title: 'Docentes',
             icon: '👨‍🏫',
-            count: stats.docentes,
+            count: 50,
             color: 'purple',
             gradient: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))'
         },
+        /** 
         {
             id: 'revistas',
             title: 'Revistas',
@@ -79,12 +80,12 @@ function Dashboard({ onViewList, onItemClick }) {
             count: stats.revistas,
             color: 'green',
             gradient: 'linear-gradient(135deg, var(--neon-green), var(--neon-blue))'
-        },
+        },*/
         {
             id: 'bibliotecarios',
             title: 'Bibliotecarios',
             icon: '👤',
-            count: stats.bibliotecarios,
+            count: 20,
             color: 'yellow',
             gradient: 'linear-gradient(135deg, var(--neon-yellow), var(--neon-pink))'
         }

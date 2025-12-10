@@ -15,7 +15,7 @@ function Navbar({ onSearch, onNavigate, onViewList, language, setLanguage, trans
         }
     };
 
-    // Función auxiliar para obtener traducción
+    // Función auxiliar para obtener traducción con fallback
     const t = (key) => translations[key] || key;
 
     return (
@@ -38,14 +38,14 @@ function Navbar({ onSearch, onNavigate, onViewList, language, setLanguage, trans
                         <option value="Libro">{t('Libro') || 'Libros'}</option>
                         <option value="Estudiante">{t('Estudiante') || 'Estudiantes'}</option>
                         <option value="Docente">{t('Docente') || 'Docentes'}</option>
-                        <option value="Autor">{t('Autor') || 'Autores'}</option>
+                        <option value="Autor">{t('Persona') || 'Personas'}</option>
                         <option value="Editorial">{t('Editorial') || 'Editoriales'}</option>
                     </select>
 
                     <input
                         type="text"
                         className="search-input"
-                        placeholder={t('Buscar') || 'Buscar en la biblioteca...'}
+                        placeholder={t('Buscar') || 'Buscar...'}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -72,22 +72,20 @@ function Navbar({ onSearch, onNavigate, onViewList, language, setLanguage, trans
                     </div>
                 </form>
 
-                {/* Selector de idioma */}
+                {/* --- NUEVO SELECTOR DE 5 IDIOMAS --- */}
                 <div className="language-selector">
-                    <button
-                        className={`lang-btn ${language === 'es' ? 'active' : ''}`}
-                        onClick={() => setLanguage('es')}
-                        title="Español"
+                    <span className="lang-icon">🗣️</span>
+                    <select 
+                        className="lang-select" 
+                        value={language} 
+                        onChange={(e) => setLanguage(e.target.value)}
                     >
-                        🇪🇸 ES
-                    </button>
-                    <button
-                        className={`lang-btn ${language === 'en' ? 'active' : ''}`}
-                        onClick={() => setLanguage('en')}
-                        title="English"
-                    >
-                        🇺🇸 EN
-                    </button>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="qu">🇧🇴 Quechua</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                    </select>
                 </div>
 
                 <button
@@ -100,55 +98,37 @@ function Navbar({ onSearch, onNavigate, onViewList, language, setLanguage, trans
                 <div className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
                     <button
                         className="nav-link"
-                        onClick={() => {
-                            onNavigate('dashboard');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onNavigate('dashboard'); setMenuOpen(false); }}
                     >
                         Dashboard
                     </button>
                     <button
                         className="nav-link"
-                        onClick={() => {
-                            onViewList('libros');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onViewList('libros'); setMenuOpen(false); }}
                     >
                         {t('Libro') || 'Libros'}
                     </button>
                     <button
                         className="nav-link"
-                        onClick={() => {
-                            onViewList('estudiantes');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onViewList('estudiantes'); setMenuOpen(false); }}
                     >
                         {t('Estudiante') || 'Estudiantes'}
                     </button>
                     <button
                         className="nav-link"
-                        onClick={() => {
-                            onViewList('docentes');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onViewList('docentes'); setMenuOpen(false); }}
                     >
                         {t('Docente') || 'Docentes'}
                     </button>
-                    <button
+                    {/* <button
                         className="nav-link"
-                        onClick={() => {
-                            onViewList('revistas');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onViewList('revistas'); setMenuOpen(false); }}
                     >
                         {t('Revista') || 'Revistas'}
-                    </button>
+                    </button> */}
                     <button
                         className="nav-link"
-                        onClick={() => {
-                            onViewList('bibliotecarios');
-                            setMenuOpen(false);
-                        }}
+                        onClick={() => { onViewList('bibliotecarios'); setMenuOpen(false); }}
                     >
                         {t('Bibliotecario') || 'Bibliotecarios'}
                     </button>

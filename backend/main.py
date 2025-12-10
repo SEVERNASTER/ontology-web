@@ -19,7 +19,7 @@ app = FastAPI(title="API Gestión Biblioteca OWL", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # El asterisco permite conexines desde CUALQUIER lado (React, Postman, Móvil)
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +27,6 @@ app.add_middleware(
 
 onto = None
 
-# --- Modelos Pydantic (Para recibir datos JSON) ---
 class IndividualCreate(BaseModel):
     name: str
     class_name: str
@@ -35,7 +34,7 @@ class IndividualCreate(BaseModel):
 class DataPropertyUpdate(BaseModel):
     individual: str
     property: str
-    value: Any # Recibe string, int, etc.
+    value: Any 
 
 class RelationCreate(BaseModel):
     subject: str
@@ -213,9 +212,7 @@ def inicializar_ontologia_base():
 
     
 
-# --- Utilidades de Búsqueda ---
 def get_thing(name: str):
-    """Busca clase o individuo por nombre."""
     res = onto[name]
     if not res:
         raise HTTPException(status_code=404, detail=f"Entidad '{name}' no encontrada.")
@@ -251,10 +248,7 @@ def agregar_dato(data: DataPropertyUpdate):
     ind = get_thing(data.individual)
     prop = get_thing(data.property)
     
-    # Owlready2 maneja las propiedades como listas o valores directos
-    # Intentamos asignar. Si es fecha string, owlready intenta parsear, pero mejor enviarlo limpio
     try:
-        # Verificamos si la propiedad existe en el individuo, si es lista agregamos
         actual = getattr(ind, data.property)
         if isinstance(actual, list):
             actual.append(data.value)
@@ -277,7 +271,6 @@ def crear_relacion(rel: RelationCreate):
         actual = getattr(sujeto, rel.property)
         actual.append(objeto)
     except Exception as e:
-         # Si no es lista (FunctionalProperty), se asigna directo
         setattr(sujeto, rel.property, objeto)
         
     onto.save(file=ONTO_FILE)
@@ -292,11 +285,9 @@ def consultar_individuo(nombre: str):
     
     for prop in ind.get_properties():
         valores = prop[ind]
-        # Separar si es Data o Object property
         if isinstance(prop, ObjectPropertyClass):
             relaciones[prop.python_name] = [v.name for v in valores]
         else:
-            # Convertir a str para JSON seguro
             datos[prop.python_name] = [str(v) for v in valores]
             
     return {
@@ -317,7 +308,6 @@ def consultar_sparql(consulta: SPARQLQuery):
         raise HTTPException(400, detail=str(e))
 
 
-# --- FUNCIONALIDAD EXTRA: Endpoints Específicos por Clase ---
 
 def obtener_detalles_instancias(nombre_clase: str):
     """

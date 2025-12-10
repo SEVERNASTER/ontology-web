@@ -15,11 +15,9 @@ function App() {
   const [listType, setListType] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   
-  // Estados para multilingüismo
   const [language, setLanguage] = useState('es');
   const [translations, setTranslations] = useState({});
 
-  // Cargar traducciones cuando cambie el idioma
   useEffect(() => {
     const loadTranslations = async () => {
       try {
@@ -68,13 +66,11 @@ function App() {
   };
 
   const handleItemClick = async (itemId, itemData = null) => {
-    // Si itemData ya está proporcionado (desde búsqueda online), usarlo directamente
     if (itemData && itemData.origen === "DBpedia") {
       setSelectedItem(itemData);
       return;
     }
 
-    // Si es una URL de DBpedia, buscar en los resultados actuales
     if (typeof itemId === 'string' && itemId.startsWith('http://dbpedia.org')) {
       if (searchResults && searchResults.resultados) {
         const foundItem = searchResults.resultados.find(r => r.id === itemId);
@@ -83,7 +79,6 @@ function App() {
           return;
         }
       }
-      // Si no se encuentra en resultados, crear un objeto básico
       setSelectedItem({
         id: itemId,
         nombre_mostrar: itemId.split('/').pop().replace(/_/g, ' '),
@@ -93,7 +88,6 @@ function App() {
       return;
     }
 
-    // Para búsquedas locales, hacer fetch normal
     try {
       const response = await fetch(`${API_BASE}/individuos/${itemId}`);
       const data = await response.json();
